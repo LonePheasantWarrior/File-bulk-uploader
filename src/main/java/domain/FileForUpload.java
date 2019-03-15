@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "IN")
-public class FileUpload {
+public class FileForUpload {
     //文件列表
     @XmlElement(name = "META_DATA")
     private META_DATA META_DATA;
