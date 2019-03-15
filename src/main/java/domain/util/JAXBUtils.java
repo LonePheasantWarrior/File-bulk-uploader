@@ -19,8 +19,7 @@ public class JAXBUtils  {
 	 * JavaBean转换成xml
 	 * 默认编码UTF-8
 	 * @param obj
-	 * @param writer
-	 * @return 
+	 * @return
 	 */
 	public static String convertToXml(Object obj) {
 		return convertToXml(obj, "UTF-8");

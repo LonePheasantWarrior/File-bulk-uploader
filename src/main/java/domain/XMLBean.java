@@ -4,19 +4,20 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "IN")
-public class FileForUpload {
+public class XMLBean {
     //文件列表
     @XmlElement(name = "META_DATA")
-    private META_DATA META_DATA;
+    private List<META_DATA> META_DATA;
 
-    public domain.META_DATA getMETA_DATA() {
+    public List<domain.META_DATA> getMETA_DATA() {
         return META_DATA;
     }
 
-    public void setMETA_DATA(domain.META_DATA META_DATA) {
+    public void setMETA_DATA(List<domain.META_DATA> META_DATA) {
         this.META_DATA = META_DATA;
     }
 }

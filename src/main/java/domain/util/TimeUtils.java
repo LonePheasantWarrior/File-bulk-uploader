@@ -69,4 +69,9 @@ public class TimeUtils {
 		SimpleDateFormat DATE_FORMATE = new SimpleDateFormat(dataFormate);
 		return DATE_FORMATE.format(lastDate);
 	}
+
+	public static String getCurrentSeconds(){
+		SimpleDateFormat DATE_FORMATE =  new SimpleDateFormat("ss");
+		return DATE_FORMATE.format(new Date());
+	}
 }

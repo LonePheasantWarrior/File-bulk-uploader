@@ -1,10 +1,10 @@
 package domain.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -14,7 +14,10 @@ import java.net.URL;
  * 文件上传工具
  */
 public class FileUploader {
-    private static Log log = LogFactory.getLog(FileUploader.class);
+    private static Logger log = LoggerFactory.getLogger(FileUploader.class);
+
+    private static final String FILE_SEPARATOR = File.separator;
+
     //TODO HTTP协议所需信息待补全
     private static final String HTTP_URL = "";
     private static final String HTTP_CONNECTION_CHARSET = "utf-8";
@@ -24,8 +27,8 @@ public class FileUploader {
     private static final int FTP_SERVICE_PORT = 0;
     private static final String FTP_USER_NAME = "";
     private static final String FTP_USER_PASSWORD = "";
-    private static final String FTP_FILE_PATH = "";
-    private static final boolean FTP_IS_ACTIVE_CONNECTION_MODE = true;
+    private static final String FTP_FILE_PATH = FILE_SEPARATOR + "imageYG" + FILE_SEPARATOR + "FOTIC" + FILE_SEPARATOR + "download";
+    private static final boolean FTP_IS_PASSIVE_LOCAL_DATA_CONNECTION_MODE = false;
     private static final String FTP_CONTROL_ENCODING = "utf-8";
     private static final int FTP_FILE_TYPE = FTP.BINARY_FILE_TYPE;
 
@@ -49,7 +52,7 @@ public class FileUploader {
     }
 
     private static boolean coreHttpUpload(File target){
-        log.info("uploading...");
+        log.info("http-uploading...");
         boolean result = false;
         HttpURLConnection connection;
         try{
@@ -89,10 +92,10 @@ public class FileUploader {
                 //TODO 响应数据编码格式待定
                 String strMessage = new String(byteArrayOutputStream.toByteArray(),HTTP_CONNECTION_CHARSET);
                 if (!strMessage.contains("<RETCODE>0000</RETCODE>")){
-                    log.warn("upload fail");
+                    log.error("upload fail");
                 }else {
                     result = true;
-                    log.info("upload complete");
+                    log.info("uploaded completed");
                 }
             }
         } catch (Exception e) {
@@ -107,7 +110,7 @@ public class FileUploader {
      * @param targetFileName    远程上传文件名
      * @return true:成功  false:失败
      */
-    public boolean ftpUpload(String sourceFilePath,String targetFileName){
+    public static boolean ftpUpload(String sourceFilePath,String targetFileName){
         return coreFtpUpload(new File(sourceFilePath),targetFileName);
     }
 
@@ -117,11 +120,12 @@ public class FileUploader {
      * @param targetFileName    远程上传文件名
      * @return true:成功  false:失败
      */
-    public boolean ftpUpload(File sourceFile,String targetFileName){
+    public static boolean ftpUpload(File sourceFile,String targetFileName){
         return coreFtpUpload(sourceFile,targetFileName);
     }
 
-    private boolean coreFtpUpload(File sourceFile, String targetFileName) {
+    private static boolean coreFtpUpload(File sourceFile, String targetFileName) {
+        log.info("ftp-uploading...");
         InputStream input = null;
         FTPClient ftpClient = new FTPClient();
 
@@ -135,7 +139,7 @@ public class FileUploader {
             if (!ftpClient.login(FTP_USER_NAME, FTP_USER_PASSWORD)) {
                 throw new IOException("FTP server login failed.");
             }
-            if (!FTP_IS_ACTIVE_CONNECTION_MODE) {
+            if (FTP_IS_PASSIVE_LOCAL_DATA_CONNECTION_MODE) {
                 ftpClient.enterLocalPassiveMode();
             }
             ftpClient.setControlEncoding(FTP_CONTROL_ENCODING);
@@ -150,11 +154,16 @@ public class FileUploader {
                     ftpClient.changeWorkingDirectory(FTP_FILE_PATH);
                 }
             }
-            log.info("file path of ftp server:" +FTP_FILE_PATH);
+//            log.info("file path of ftp server:" +FTP_FILE_PATH);
             input = new FileInputStream(sourceFile);
             ftpClient.enterLocalPassiveMode();
             boolean returnValue = ftpClient.storeFile(targetFileName, input);
             ftpClient.logout();
+            if (returnValue){
+                log.info("uploaded completed");
+            }else {
+                log.error("upload failed");
+            }
             return returnValue;
         } catch (Exception e) {
             log.error("error message:" + e);
