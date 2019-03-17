@@ -9,5 +9,10 @@
         <property name="jobRepository" ref="jobRepository"/>
     </bean>
 
+    <bean id="batchThreadPoolExecutor" class="service.executePool.BatchThreadPoolExecutor"/>
+
+    <bean id="fileUploadProcessor" class="service.FileUploadProcessor">
+        <property name="batchThreadPoolExecutor" ref="batchThreadPoolExecutor"/>
+    </bean>
 
 </beans>

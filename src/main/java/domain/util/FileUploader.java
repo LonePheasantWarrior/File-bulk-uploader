@@ -117,14 +117,24 @@ public class FileUploader {
     /**
      * FTP协议-文件上传工具
      * @param sourceFile    本地待上传文件
-     * @param targetFileName    远程上传文件名
+     * @param targetFileName    远程端文件名
      * @return true:成功  false:失败
      */
     public static boolean ftpUpload(File sourceFile,String targetFileName){
         return coreFtpUpload(sourceFile,targetFileName);
     }
 
-    private static boolean coreFtpUpload(File sourceFile, String targetFileName) {
+    /**
+     * FTP协议-文件上传工具
+     * @param source    字节数组形式的上传目标
+     * @param targetFileName    远程端文件名
+     * @return  true:成功  false:失败
+     */
+    public static boolean ftpUpload(byte[] source,String targetFileName){
+        return coreFtpUpload(source,targetFileName);
+    }
+
+    private static boolean coreFtpUpload(Object source, String targetFileName) {
         log.info("ftp-uploading...");
         InputStream input = null;
         FTPClient ftpClient = new FTPClient();
@@ -155,7 +165,14 @@ public class FileUploader {
                 }
             }
 //            log.info("file path of ftp server:" +FTP_FILE_PATH);
-            input = new FileInputStream(sourceFile);
+            if (source instanceof File){
+                input = new FileInputStream((File) source);
+            }else if (source instanceof byte[]){
+                input = new ByteArrayInputStream((byte[]) source);
+            }else {
+                throw new Exception("the sourec of upload is not File or byte array");
+            }
+
             ftpClient.enterLocalPassiveMode();
             boolean returnValue = ftpClient.storeFile(targetFileName, input);
             ftpClient.logout();
@@ -188,5 +205,7 @@ public class FileUploader {
             }
         }
     }
+
+
 
 }
