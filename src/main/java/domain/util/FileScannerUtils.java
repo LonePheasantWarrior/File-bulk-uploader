@@ -14,7 +14,7 @@ public class FileScannerUtils {
     private static Logger log = LoggerFactory.getLogger(FileScannerUtils.class);
 
     //TODO 具体路径待填充
-    private static final String PATH = "C:\\Users\\wxhme\\Music\\本地音乐";
+    private static final String PATH = "C:\\Users\\wxhme\\Pictures\\照片";
 
     /**
      * 列出指定目录下的所有文件

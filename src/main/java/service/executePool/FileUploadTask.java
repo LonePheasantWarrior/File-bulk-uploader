@@ -3,29 +3,42 @@ package service.executePool;
 import domain.util.FileUploader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.BatchContext;
 
 import java.io.File;
-import java.util.concurrent.Callable;
+import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
-public class FileUploadTask implements Callable<Boolean> {
+public class FileUploadTask implements Runnable {
     private Logger log = LoggerFactory.getLogger(FileUploadTask.class);
 
+    private BatchContext batchContext;
     private static final int RETRY = 3;
 
     private File target;
 
-    public FileUploadTask(File target){
+    public FileUploadTask(File target,BatchContext batchContext){
+        this.batchContext = batchContext;
         this.target = target;
     }
 
     @Override
-    public Boolean call() throws Exception {
-        return execute(0);
+    public void run() {
+        try {
+            if (execute(0)){
+                Set<String> upLoadedNameList = batchContext.getUploadedNameList();
+                upLoadedNameList.add(target.getName());
+            }else {
+                Set<String> uploadFailedList = batchContext.getUploadFailedList();
+                uploadFailedList.add(target.getName());
+            }
+        } catch (InterruptedException e) {
+            log.error("upload error",e);
+        }
     }
 
-    private boolean execute(int reTryCount) throws InterruptedException {
+    private Boolean execute(int reTryCount) throws InterruptedException {
         boolean success = false;
         try {
             if (FileUploader.ftpUpload(target,target.getName())){
@@ -40,7 +53,7 @@ public class FileUploadTask implements Callable<Boolean> {
                 log.debug("Start the "+reTryCount+"th upload");
                 execute(reTryCount);
             }else {
-                log.error("Upload failed, the number of retries is " + reTryCount);
+                log.error("Upload failed, the number of retries is " + --reTryCount);
             }
         }
         return success;

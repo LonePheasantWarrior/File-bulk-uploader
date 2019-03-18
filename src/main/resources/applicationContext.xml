@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
 
-    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
-
-    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.SimpleJobRepository"/>
-
-    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
-        <property name="jobRepository" ref="jobRepository"/>
-    </bean>
+>
 
     <bean id="batchThreadPoolExecutor" class="service.executePool.BatchThreadPoolExecutor"/>
+
+    <bean id="fileScannerProcessor" class="service.FileScannerProcessor"/>
 
     <bean id="fileUploadProcessor" class="service.FileUploadProcessor">
         <property name="batchThreadPoolExecutor" ref="batchThreadPoolExecutor"/>
     </bean>
+
+    <bean id="xmlUploadProcessor" class="service.XmlUploadProcessor"/>
+
+    <bean id="batchContext" class="service.BatchContext"/>
+
+    <bean id="taskJob" class="service.TaskJob">
+        <property name="batchContext" ref="batchContext" />
+        <property name="fileScannerProcessor" ref="fileScannerProcessor"/>
+        <property name="fileUploadProcessor" ref="fileUploadProcessor"/>
+        <property name="xmlUploadProcessor" ref="xmlUploadProcessor"/>
+    </bean>
+
+    <task:scheduled-tasks>
+        <task:scheduled ref="taskJob" method="batchJob" cron="0 0 4 * * ?"/>
+    </task:scheduled-tasks>
 
 </beans>

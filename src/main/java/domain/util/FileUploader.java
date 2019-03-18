@@ -183,7 +183,7 @@ public class FileUploader {
             }
             return returnValue;
         } catch (Exception e) {
-            log.error("error message:" + e);
+//            log.error("error message:" + e);
             log.error("upload file failed.", e);
             return false;
         } finally {
@@ -191,7 +191,7 @@ public class FileUploader {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    log.error("error message:" + e);
+//                    log.error("error message:" + e);
                     log.error("stream close exception", e);
                 }
             }
@@ -199,7 +199,7 @@ public class FileUploader {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    log.error("error message:" + e);
+//                    log.error("error message:" + e);
                     log.error("FTP server disconnect exception", e);
                 }
             }

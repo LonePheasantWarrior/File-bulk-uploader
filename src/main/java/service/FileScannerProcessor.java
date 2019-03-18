@@ -1,15 +1,13 @@
 package service;
 
 import domain.util.FileScannerUtils;
-import org.springframework.batch.item.ItemProcessor;
 
 import java.io.File;
 import java.util.Set;
 
-public class FileScannerProcessor implements ItemProcessor<String, BatchContext> {
+public class FileScannerProcessor implements Processor<BatchContext, BatchContext> {
     @Override
-    public BatchContext process(String args) throws Exception {
-        BatchContext batchContext = new BatchContext();
+    public BatchContext process(BatchContext batchContext) throws Exception {
         Set<File> fileList = FileScannerUtils.listAllFiles();
         batchContext.setFileList(fileList);
         return batchContext;

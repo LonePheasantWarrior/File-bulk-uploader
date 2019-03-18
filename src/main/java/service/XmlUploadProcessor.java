@@ -9,10 +9,7 @@ import domain.util.JAXBUtils;
 import domain.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.ItemProcessor;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +17,7 @@ import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
-public class XmlUploadProcessor implements ItemProcessor<BatchContext,String> {
+public class XmlUploadProcessor implements Processor<BatchContext,String> {
     private static Logger logger = LoggerFactory.getLogger(XmlUploadProcessor.class);
 
     private static final int RETRY = 3;
@@ -29,48 +26,60 @@ public class XmlUploadProcessor implements ItemProcessor<BatchContext,String> {
 
     @Override
     public String process(BatchContext batchContext) throws Exception {
+
         Set<String> uploadedNames = batchContext.getUploadedNameList();
         String app_no = "C8037" + TimeUtils.getCurrentTimeSeconds();
         logger.info("APP_NO: " + app_no);
 
-        List<PAGE> PAGEList = new ArrayList<>();
-        for (String fileName : uploadedNames){
-            PAGE page = new PAGE();
-            page.setACTION("add");
-            page.setOPERATE_TIME(TimeUtils.getSystemTime());
-            page.setFILENAME(fileName);
-            page.setTYPE("01");
+        if (!(uploadedNames.size() > 0)){
+            logger.error("No uploaded file to process");
+            return null;
+        }else {
+            List<PAGE> PAGEList = new ArrayList<>();
+            for (String fileName : uploadedNames){
+                PAGE page = new PAGE();
+                page.setACTION("add");
+                page.setOPERATE_TIME(TimeUtils.getSystemTime());
+                page.setFILENAME(fileName);
+                page.setTYPE("01");
 
-            PAGEList.add(page);
+                PAGEList.add(page);
+            }
+
+            TREE tree = new TREE();
+            tree.setID("01");
+            tree.setNAME("身份证明");
+            tree.setPAGE(PAGEList);
+
+            TREE_NODE tree_node = new TREE_NODE();
+            tree_node.setTREE(tree);
+
+            META_DATA meta_data = new META_DATA();
+            meta_data.setAPP_CODE(APP_CODE);
+            meta_data.setAPP_NO(app_no);
+            meta_data.setCASE_NO(CASE_NO);
+            meta_data.setTREE_NODE(tree_node);
+
+            String xml = JAXBUtils.convertToXml(meta_data);
+            batchContext.setXmlStr(xml);
+
+            logger.info("\n" + xml);
+
+            xmlUpload(xml,app_no);
+
+            return xml;
         }
-
-        TREE tree = new TREE();
-        tree.setID("01");
-        tree.setNAME("身份证明");
-        tree.setPAGE(PAGEList);
-
-        TREE_NODE tree_node = new TREE_NODE();
-        tree_node.setTREE(tree);
-
-        META_DATA meta_data = new META_DATA();
-        meta_data.setAPP_CODE(APP_CODE);
-        meta_data.setAPP_NO(app_no);
-        meta_data.setCASE_NO(CASE_NO);
-        meta_data.setTREE_NODE(tree_node);
-
-        String xml = JAXBUtils.convertToXml(meta_data);
-        batchContext.setXmlStr(xml);
-
-        logger.info("\n" + xml);
-        return xml;
     }
 
     private void xmlUpload(String xml,String app_no) {
-        try {
-            doXmlUpload(xml,app_no,0);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            logger.error(e.toString());
+        if (xml != null && !"".equals(xml)){
+            try {
+                doXmlUpload(xml,app_no,0);
+            } catch (InterruptedException e) {
+                logger.error("xml file upload error",e);
+            }
+        }else {
+            logger.error("The XML file to be uploaded is empty");
         }
     }
 
@@ -86,8 +95,9 @@ public class XmlUploadProcessor implements ItemProcessor<BatchContext,String> {
                 logger.debug("Start the "+reTry+"th upload");
                 doXmlUpload(xml,app_no,reTry);
             }else {
-                logger.error("Upload failed, the number of retries is " + reTry);
+                logger.error("Upload failed, the number of retries is " + --reTry);
             }
         }
     }
+
 }

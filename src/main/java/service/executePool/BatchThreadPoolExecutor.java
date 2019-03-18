@@ -16,6 +16,7 @@ public class BatchThreadPoolExecutor {
     private BatchThreadPoolExecutor(int threadCount){
         this.size = threadCount;
         threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
+        System.out.println("Number of processor cores: " + size);
     }
 
     public ThreadPoolExecutor getThreadPoolExecutor(){
