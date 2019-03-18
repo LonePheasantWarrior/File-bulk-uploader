@@ -7,6 +7,7 @@ public class BatchContext {
     private Set<File> fileList;
     private Set<String> nameList;
     private Set<String> uploadedNameList;
+    private Set<String> uploadFailedList;
     private String status;
     private String xmlStr;
 
@@ -48,5 +49,13 @@ public class BatchContext {
 
     public void setXmlStr(String xmlStr) {
         this.xmlStr = xmlStr;
+    }
+
+    public Set<String> getUploadFailedList() {
+        return uploadFailedList;
+    }
+
+    public void setUploadFailedList(Set<String> uploadFailedList) {
+        this.uploadFailedList = uploadFailedList;
     }
 }
