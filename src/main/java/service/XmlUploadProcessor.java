@@ -20,7 +20,7 @@ import static java.lang.Thread.sleep;
 public class XmlUploadProcessor implements Processor<BatchContext,String> {
     private static Logger logger = LoggerFactory.getLogger(XmlUploadProcessor.class);
 
-    private static final int RETRY = 3;
+    private static final int RETRY = 5;
     private static final String APP_CODE = "CREDIT";
     private static final String CASE_NO = "Y017121514192646";
 

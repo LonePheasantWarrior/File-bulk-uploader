@@ -22,20 +22,7 @@ public class FileUploadProcessor implements Processor<BatchContext,BatchContext>
 
         logger.info("Bulk uploading...");
         logger.info("Number of items: " + fileList.size());
-//        long timeConsuming = System.currentTimeMillis();
         ThreadPoolExecutor threadPoolExecutor = batchThreadPoolExecutor.getThreadPoolExecutor();
-//        for (File file : fileList){
-//            try {
-//                if (uploadFileWithMultithreading(threadPoolExecutor,file)){
-//                    uploadedName.add(file.getName());
-//                }else {
-//                    uploadFailedName.add(file.getName());
-//                }
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//                logger.error(e.toString());
-//            }
-//        }
 
         for (File file : fileList){
             threadPoolExecutor.submit(new FileUploadTask(file,batchContext));
@@ -45,10 +32,6 @@ public class FileUploadProcessor implements Processor<BatchContext,BatchContext>
             sleep(5000);
         }
 
-//        batchContext.setUploadedNameList(uploadedName);
-//        batchContext.setUploadFailedList(uploadFailedName);
-
-//        logger.info(uploadedName.size() + " items upload completed,took " + (System.currentTimeMillis() - timeConsuming) / 1000 + " seconds");
         Set<String> uploadFailedName = batchContext.getUploadFailedList();
         if (uploadFailedName.size() > 0){
             logger.warn("Upload failed items: " + uploadFailedName.toString());

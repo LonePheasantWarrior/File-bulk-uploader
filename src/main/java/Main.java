@@ -2,24 +2,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import service.*;
 
+/**
+ * 批处理上传工具
+ * @author wangxiaohu@csii.com.cn
+ */
 public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args)  {
-        log.info("Batch processor starting...");
+        log.info("Batch processor initializing...");
 
         String[] configLocations = {"applicationContext.xml"};
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext(configLocations);
+        new ClassPathXmlApplicationContext(configLocations);
 
-        TaskJob taskJob = (TaskJob) applicationContext.getBean("taskJob");
-        try {
-            taskJob.batchJob();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        log.info("Batch processor loading finished");
     }
 
 }
